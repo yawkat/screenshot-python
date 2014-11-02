@@ -1,0 +1,29 @@
+{% extends "layout.html" %}
+
+{% block title %}Screenshot{% endblock %}
+
+{% block head %}
+    <style type="text/css">
+        #screenshot {
+            max-width: 100%;
+            display: block;
+            margin: 0 auto;
+        }
+    </style>
+    <meta content="photo" name="twitter:card">
+    <meta content="@yawkat" name="twitter:creator">
+    <meta content="463764901" name="twitter:creator:id">
+    <meta content="Screenshot" property="og:title">
+    <meta content="article" property="og:type">
+    <meta name="twitter:image" content="{{ site_url }}/{{ id }}.twitter.png">
+    <meta property="og:url" content="{{ site_url }}/{{ id }}">
+    <meta property="og:image" content="{{ site_url }}/{{ id }}.png">
+    <link rel="image_src" href="{{ site_url }}/{{ id }}.png">
+    <meta content="yawk.at" property="og:site_name">
+    <meta content="" property="og:description">
+    <meta content="noindex" property="robots">
+{% endblock %}
+
+{% block content %}
+    <img id="screenshot" src="/{{ id }}.{{ image_format }}">
+{% endblock %}

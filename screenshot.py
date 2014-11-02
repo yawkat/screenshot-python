@@ -1,32 +1,32 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python2
 
 import os
 import sys
 import pyscreenshot
 import Tkinter as tk
-import Image
 from PIL import ImageTk
-import ftplib
-import cStringIO
+import io
 import pyperclip
+import urllib
+import urllib2
+import crypt
+import rencode
 
 import config
 
 def upload(image):
-    connection = ftplib.FTP(config.ftp_host)
-    connection.login(config.ftp_user, config.ftp_password)
-    existing = set(connection.cwd(config.ftp_directory))
-    while True:
-        gen = config.generate_name(existing)
-        name = config.filename_format % gen
-        print(name)
-        if not name in existing:
-            break
-    f = cStringIO.StringIO()
+    f = io.BytesIO()
     image.save(f, config.image_format)
-    connection.storbinary("STOR " + name, cStringIO.StringIO(f.getvalue()))
-    connection.quit()
-    url = config.copy_format % gen
+    obj = {
+        "type": u"image",
+        "image_format": config.image_format,
+        "image_blob": f.getvalue(),
+    }
+    data = crypt.encrypt_string_to_string(rencode.dumps(obj))
+    request = urllib2.urlopen(config.url, data=data)
+    response_string = crypt.decrypt_stream_to_string(request)
+    response = rencode.loads(response_string)
+    url = response["url"]
     pyperclip.copy(url)
     os.system("notify-send --expire-time=2000 \"Screenshot uploaded\" \"" + url + "\"")
 
@@ -53,8 +53,10 @@ def take_screen():
 
     canvas.create_image((0, 0), image=img_tk, anchor=tk.NW)
 
+    global area, image_arr, items
     area = 0, 0, 0, 0
     items = []
+    image_arr = []
 
     def redraw():
         global image_arr, items
@@ -103,7 +105,13 @@ def take_screen():
     def up(evt):
         print("Shot", area)
         frame.master.destroy()
-        selected = img.crop((area[0], area[1], area[0] + area[2], area[1] + area[3]))
+        box = (
+            min(area[0], area[0] + area[2]),
+            min(area[1], area[1] + area[3]),
+            max(area[0], area[0] + area[2]),
+            max(area[1], area[1] + area[3]),
+        )
+        selected = img.crop(box)
         upload(selected)
 
     frame.bind("<Escape>", sys.exit)
