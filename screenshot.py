@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 
 import os
 import sys
@@ -19,7 +19,7 @@ def upload(image):
     while True:
         gen = config.generate_name(existing)
         name = config.filename_format % gen
-        print name
+        print(name)
         if not name in existing:
             break
     f = cStringIO.StringIO()
@@ -101,7 +101,7 @@ def take_screen():
             area = (area[0], area[1], width, height)
             redraw()
     def up(evt):
-        print "Shot", area
+        print("Shot", area)
         frame.master.destroy()
         selected = img.crop((area[0], area[1], area[0] + area[2], area[1] + area[3]))
         upload(selected)
@@ -119,7 +119,7 @@ def take_screen():
 
     frame.mainloop()
 
-    print "Done"
+    print("Done")
 
 def take_clipboard():
     import gtk
