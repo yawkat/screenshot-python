@@ -14,6 +14,12 @@ import time
 import datetime
 import cStringIO
 import Image
+import argparse
+
+parser = argparse.ArgumentParser()
+parser.add_argument("--no-cache", action="store_false", dest="cache")
+
+options = parser.parse_args()
 
 db = redis.StrictRedis(host=config.redis_host, port=config.redis_port, db=config.redis_db)
 
@@ -28,7 +34,7 @@ class TemplateEngine():
     def __init__(self, prefix, suffix):
         self.prefix = prefix
         self.suffix = suffix
-        self.env = jinja2.Environment(loader=jinja2.FileSystemLoader(prefix))
+        self.env = jinja2.Environment(loader=jinja2.FileSystemLoader(prefix), autoescape=True)
         self.template_cache = {}
 
     def compile(self, name):
@@ -37,12 +43,14 @@ class TemplateEngine():
 
     def render(self, name, args):
         args["site_url"] = config.url
-        return self.compile(name).render(**args) ###############################################################
-        try:
-            template = self.template_cache[name]
-        except KeyError:
+        if options.cache:
+            try:
+                template = self.template_cache[name]
+            except KeyError:
+                template = self.compile(name)
+                self.template_cache[name] = template
+        else:
             template = self.compile(name)
-            self.template_cache[name] = template
         return template.render(**args)
 
 templates = TemplateEngine("template/", ".html")

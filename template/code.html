@@ -1,0 +1,76 @@
+{% extends "layout.html" %}
+
+{% block title %}Code Paste{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.3/styles/solarized_dark.min.css">
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.3/highlight.min.js"></script>
+
+<script type="text/javascript">
+    // make ctrl+a only select code
+    function selectText(el) {
+        if (typeof window.getSelection != "undefined" && typeof document.createRange != "undefined") {
+            var range = document.createRange();
+            range.selectNodeContents(el);
+            var sel = window.getSelection();
+            sel.removeAllRanges();
+            sel.addRange(range);
+        } else if (typeof document.selection != "undefined" && typeof document.body.createTextRange != "undefined") {
+            var textRange = document.body.createTextRange();
+            textRange.moveToElementText(el);
+            textRange.select();
+        }
+    }
+    document.onkeypress = function (e) {
+        e = e || window.event;
+        if (e.ctrlKey && e.charCode == 97) {
+            e.preventDefault();
+            selectText(document.getElementById("code"));
+        }
+    }
+    window.onload = function() {
+        var block = document.getElementById("code");
+        hljs.highlightBlock(block);
+    }
+</script>
+<style type="text/css">
+    code, .line_number {
+        font-family: "Source Code Pro", monospaced;
+    }
+    #content {
+        border-top: 1px solid #073642;
+    }
+    #code {
+        margin-left: 2.5em;
+        white-space: pre;
+    }
+    body {
+        background-color: #002b36;
+    }
+    #timestamp {
+        color: #586e75;
+    }
+    #line_numbers {
+        list-style-type: none;
+        position: absolute;
+        width: 2em;
+        padding-top: 8px;
+    }
+    .line_number {
+        display: block;
+        margin: 0;
+        padding: 0;
+        text-align: right;
+        color: #586e75;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+    <ol id="line_numbers">
+        {% for line in range(code_text.rstrip().split("\n").__len__()) %}
+            <li class="line_number">{{ line + 1 }}</li>
+        {% endfor %}
+    </ol>
+    <code id="code">{{ code_text.rstrip() }}</code>
+{% endblock %}

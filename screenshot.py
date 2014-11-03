@@ -20,11 +20,18 @@ def upload_image(image):
     f = io.BytesIO()
     image.save(f, config.image_format)
     obj = {
-        "type": u"image",
+        "type": "image",
         "image_format": config.image_format,
         "image_blob": f.getvalue(),
     }
     upload(obj, "Screenshot uploaded: %s")
+
+def upload_code(text):
+    obj = {
+        "type": "code",
+        "code_text": text,
+    }
+    upload(obj, "Paste uploaded: %s")
 
 def upload(obj, notification_format):
     data = crypt.encrypt_string_to_string(rencode.dumps(obj))
@@ -138,16 +145,6 @@ def take_clipboard():
     import gtk
     clipboard = gtk.Clipboard()
 
-    text = clipboard.wait_for_text()
-    if text is not None:
-        print("Text: %s" % text)
-        try:
-            img = Image.open(text)
-        except:
-            print("Failed to use file source")
-        else:
-            upload_image(img)
-
     pixbuf = clipboard.wait_for_image()
     if pixbuf is not None:
         pixels = pixbuf.get_pixels()
@@ -160,6 +157,19 @@ def take_clipboard():
         return
     else:
         print("Not an image")
+
+    text = clipboard.wait_for_text()
+    if text is not None:
+        print("Text: %s" % text)
+        try:
+            img = Image.open(text)
+        except:
+            print("Failed to use image file source")
+        else:
+            upload_image(img)
+            return
+
+        upload_code(text)
 
 if __name__ == '__main__':
     if len(sys.argv) <= 1 or sys.argv[1] == "screen":
