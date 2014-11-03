@@ -4,6 +4,7 @@ import os
 import sys
 import pyscreenshot
 import Tkinter as tk
+import Image
 from PIL import ImageTk
 import io
 import pyperclip
@@ -138,9 +139,10 @@ def take_clipboard():
         print("Text: %s" % text)
         try:
             img = Image.open(text)
-            upload(img)
         except:
             print("Failed to use file source")
+        else:
+            upload(img)
 
     pixbuf = clipboard.wait_for_image()
     if pixbuf is not None:

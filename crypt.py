@@ -5,7 +5,7 @@ import io
 from Crypto.Cipher import AES
 import hashlib
 
-with open("secret") as f:
+with open(os.path.dirname(__file__) + "/secret") as f:
     key = f.read(16)
 
 aes_chunk_size = 16 * 1024
