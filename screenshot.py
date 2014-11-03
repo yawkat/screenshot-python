@@ -12,10 +12,11 @@ import urllib
 import urllib2
 import crypt
 import rencode
+import subprocess
 
 import config
 
-def upload(image):
+def upload_image(image):
     f = io.BytesIO()
     image.save(f, config.image_format)
     obj = {
@@ -23,13 +24,16 @@ def upload(image):
         "image_format": config.image_format,
         "image_blob": f.getvalue(),
     }
+    upload(obj, "Screenshot uploaded: %s")
+
+def upload(obj, notification_format):
     data = crypt.encrypt_string_to_string(rencode.dumps(obj))
     request = urllib2.urlopen(config.url, data=data)
     response_string = crypt.decrypt_stream_to_string(request)
     response = rencode.loads(response_string)
     url = response["url"]
     pyperclip.copy(url)
-    os.system("notify-send --expire-time=2000 \"Screenshot uploaded\" \"" + url + "\"")
+    subprocess.Popen(["notify-send", "--expire-time=2000", notification_format % url])
 
 def take_screen():
     ### take screenshot
@@ -113,7 +117,7 @@ def take_screen():
             max(area[1], area[1] + area[3]),
         )
         selected = img.crop(box)
-        upload(selected)
+        upload_image(selected)
 
     frame.bind("<Escape>", sys.exit)
     canvas.bind("<Button-1>", down)
@@ -142,7 +146,7 @@ def take_clipboard():
         except:
             print("Failed to use file source")
         else:
-            upload(img)
+            upload_image(img)
 
     pixbuf = clipboard.wait_for_image()
     if pixbuf is not None:
@@ -152,7 +156,7 @@ def take_clipboard():
         else:
             colorspace = "RGB"
         img = Image.fromstring(colorspace, (pixbuf.get_width(), pixbuf.get_height()), pixels)
-        upload(img)
+        upload_image(img)
         return
     else:
         print("Not an image")
