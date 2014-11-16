@@ -118,6 +118,16 @@ class Handler(BaseHTTPServer.BaseHTTPRequestHandler):
     def _dump_image_twitter(self, match):
         self._dump_image(match, (280, 150))
 
+    def _dump_text(self, match):
+        item_id = match.group(1)
+        entry = get_db_entry(item_id)
+        if entry is None:
+            return False
+        self.send_response(200)
+        self.end_headers()
+        blob = entry["code_text"]
+        self.wfile.write(blob)
+
     def e404(self):
         self.send_response(404)
         self.end_headers()
@@ -126,6 +136,7 @@ class Handler(BaseHTTPServer.BaseHTTPRequestHandler):
 special_urls = {
     re.compile(r"/([^/]*)\.twitter\.(png|je?pg|gif|bmp)"): Handler._dump_image_twitter,
     re.compile(r"/([^/]*)\.(png|je?pg|gif|bmp)"): Handler._dump_image,
+    re.compile(r"/([^/]*)\.txt"): Handler._dump_text,
 }
 
 server = BaseHTTPServer.HTTPServer((config.bind_address, config.bind_port), Handler)
