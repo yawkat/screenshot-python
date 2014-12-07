@@ -15,6 +15,7 @@ import datetime
 import cStringIO
 import Image
 import argparse
+import markdown
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--no-cache", action="store_false", dest="cache")
@@ -128,6 +129,19 @@ class Handler(BaseHTTPServer.BaseHTTPRequestHandler):
         blob = entry["code_text"]
         self.wfile.write(blob)
 
+    def _render_markdown(self, match):
+        item_id = match.group(1)
+        entry = get_db_entry(item_id)
+        if entry is None:
+            return False
+        self.send_response(200)
+        self.end_headers()
+        entry["id"] = item_id
+        entry["time_stamp"] = datetime.datetime.utcfromtimestamp(float(entry["time"])).strftime("%Y-%m-%d %H-%M-%S")
+        entry["code_render"] = markdown.markdown(entry["code_text"])
+        html = templates.render("markdown_render", entry)
+        self.wfile.write(html)
+
     def e404(self):
         self.send_response(404)
         self.end_headers()
@@ -137,6 +151,7 @@ special_urls = {
     re.compile(r"/([^/]*)\.twitter\.(png|je?pg|gif|bmp)"): Handler._dump_image_twitter,
     re.compile(r"/([^/]*)\.(png|je?pg|gif|bmp)"): Handler._dump_image,
     re.compile(r"/([^/]*)\.txt"): Handler._dump_text,
+    re.compile(r"/([^/]*)\.rmd"): Handler._render_markdown,
 }
 
 server = BaseHTTPServer.HTTPServer((config.bind_address, config.bind_port), Handler)

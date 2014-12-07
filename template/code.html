@@ -24,14 +24,19 @@
     document.onkeypress = function (e) {
         e = e || window.event;
         if (e.ctrlKey && e.charCode == 97) {
-            e.preventDefault();
-            selectText(document.getElementById("code"));
+            var block = document.getElementById("code");
+            if (block) {
+                selectText(block);
+                e.preventDefault();
+            }
         }
     }
     window.onload = function() {
-        var block = document.getElementById("code");
-        hljs.configure({ useBR: true });
-        hljs.highlightBlock(block);
+        var blocks = document.getElementsByTagName("code");
+        for (var i = blocks.length - 1; i >= 0; i--) {
+            hljs.configure({ useBR: true });
+            hljs.highlightBlock(blocks[i]);
+        }
     }
 </script>
 <style type="text/css">
@@ -65,6 +70,7 @@
         text-align: right;
     }
 </style>
+{% block head2 %}{% endblock %}
 {% endblock %}
 
 {% block content %}

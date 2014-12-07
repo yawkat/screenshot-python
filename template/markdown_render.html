@@ -1,0 +1,38 @@
+{% extends "code.html" %}
+
+{% block head2 %}
+<style type="text/css">
+    #content {
+        max-width: 50em;
+        line-height: 1.6em;
+    }
+    code.hljs {
+        display: inline;
+        padding: 0 0.2em;
+    }
+    pre, code.hljs {
+        background-color: #073642;
+        border-radius: 4px;
+    }
+    pre {
+        display: block;
+        padding: 0.5em;
+    }
+    h1, h2, h3, h4, h5, h6 {
+        padding: 0.5em 0;
+    }
+    li {
+        margin-left: 1.5em;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+    {{ code_render|safe }}
+    <script type="text/javascript">
+        var pres = document.getElementsByTagName("pre")
+        for (var i = pres.length - 1; i >= 0; i--) {
+            pres[i].innerHTML = pres[i].innerHTML.split("\n").join("<br>")
+        };
+    </script>
+{% endblock %}
