@@ -13,6 +13,7 @@ import urllib2
 import crypt
 import rencode
 import subprocess
+import urlparse
 
 import config
 
@@ -32,6 +33,13 @@ def upload_code(text):
         "code_text": text,
     }
     upload(obj, "Paste uploaded: %s")
+
+def upload_url(url):
+    obj = {
+        "type": "url",
+        "url": url
+    }
+    upload(obj, "URL shortened: %s")
 
 def upload(obj, notification_format):
     data = crypt.encrypt_string_to_string(rencode.dumps(obj))
@@ -169,7 +177,11 @@ def take_clipboard():
             upload_image(img)
             return
 
-        upload_code(text)
+        parsed_url = urlparse.urlparse(text)
+        if parsed_url.scheme in ("http", "https"):
+            upload_url(text)
+        else:
+            upload_code(text)
 
 if __name__ == '__main__':
     if len(sys.argv) <= 1 or sys.argv[1] == "screen":

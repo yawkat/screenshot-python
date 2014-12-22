@@ -72,7 +72,11 @@ class Handler(BaseHTTPServer.BaseHTTPRequestHandler):
         if entry is None:
             self.e404()
         else:
-            self.send_response(200)
+            if entry["type"] == "url":
+                self.send_response(301)
+                self.send_header("Location", entry["url"])
+            else:
+                self.send_response(200)
             self.end_headers()
             entry["id"] = item_id
             entry["time_stamp"] = datetime.datetime.utcfromtimestamp(float(entry["time"])).strftime("%Y-%m-%d %H-%M-%S")
