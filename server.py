@@ -152,7 +152,7 @@ class Handler(BaseHTTPServer.BaseHTTPRequestHandler):
         self.wfile.write(templates.render("404", {}))
 
 special_urls = {
-    re.compile(r"/([^/]*)\.twitter\.(png|je?pg|gif|bmp)"): Handler._dump_image_twitter,
+    re.compile(r"/([^/]*)\.twitter\.(png|je?pg|gif|bmp|svg)"): Handler._dump_image_twitter,
     re.compile(r"/([^/]*)\.(png|je?pg|gif|bmp)"): Handler._dump_image,
     re.compile(r"/([^/]*)\.txt"): Handler._dump_text,
     re.compile(r"/([^/]*)\.rmd"): Handler._render_markdown,

@@ -27,6 +27,14 @@ def upload_image(image):
     }
     upload(obj, "Screenshot uploaded: %s")
 
+def upload_svg(svg):
+    obj = {
+        "type": "image",
+        "image_format": "svg",
+        "image_blob": svg,
+    }
+    upload(obj, "SVG uploaded: %s")
+
 def upload_code(text):
     obj = {
         "type": "code",
@@ -175,6 +183,14 @@ def take_clipboard():
             print("Failed to use image file source")
         else:
             upload_image(img)
+            return
+        try:
+            with open(text) as f:
+                f.read(100).index("<!DOCTYPE svg")
+        except:
+            print("Failed to use svg file source")
+        else:
+            upload_svg(text)
             return
 
         parsed_url = urlparse.urlparse(text)
