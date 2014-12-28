@@ -123,6 +123,15 @@ class Handler(BaseHTTPServer.BaseHTTPRequestHandler):
     def _dump_image_twitter(self, match):
         self._dump_image(match, (280, 150))
 
+    def _dump_svg(self, match):
+        item_id = match.group(1)
+        entry = get_db_entry(item_id)
+        if entry is None:
+            return False
+        self.send_response(200)
+        self.end_headers()
+        self.wfile.write(entry["svg_blob"])
+
     def _dump_text(self, match):
         item_id = match.group(1)
         entry = get_db_entry(item_id)
@@ -152,8 +161,9 @@ class Handler(BaseHTTPServer.BaseHTTPRequestHandler):
         self.wfile.write(templates.render("404", {}))
 
 special_urls = {
-    re.compile(r"/([^/]*)\.twitter\.(png|je?pg|gif|bmp|svg)"): Handler._dump_image_twitter,
+    re.compile(r"/([^/]*)\.twitter\.(png|je?pg|gif|bmp)"): Handler._dump_image_twitter,
     re.compile(r"/([^/]*)\.(png|je?pg|gif|bmp)"): Handler._dump_image,
+    re.compile(r"/([^/]*)\.svg"): Handler._dump_svg,
     re.compile(r"/([^/]*)\.txt"): Handler._dump_text,
     re.compile(r"/([^/]*)\.rmd"): Handler._render_markdown,
 }

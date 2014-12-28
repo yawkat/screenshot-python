@@ -1,0 +1,18 @@
+{% extends "layout.html" %}
+
+{% block title %}SVG{% endblock %}
+
+{% block head %}
+    <style type="text/css">
+        #svg {
+            max-width: 100%;
+            display: block;
+            margin: 0 auto;
+        }
+    </style>
+    <meta content="noindex" property="robots">
+{% endblock %}
+
+{% block content %}
+    <img id="svg" src="/{{ id }}.svg">
+{% endblock %}

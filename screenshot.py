@@ -29,9 +29,8 @@ def upload_image(image):
 
 def upload_svg(svg):
     obj = {
-        "type": "image",
-        "image_format": "svg",
-        "image_blob": svg,
+        "type": "svg",
+        "svg_blob": svg,
     }
     upload(obj, "SVG uploaded: %s")
 
