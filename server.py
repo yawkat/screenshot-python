@@ -60,6 +60,9 @@ def path_dict():
     return collections.defaultdict(path_dict)
 
 class Handler(BaseHTTPServer.BaseHTTPRequestHandler):
+    def _mime(self, mime):
+        self.send_header("Content-Type", mime)
+
     def do_GET(self):
         for special, handler in special_urls.items():
             match = special.match(self.path)
@@ -77,6 +80,7 @@ class Handler(BaseHTTPServer.BaseHTTPRequestHandler):
                 self.send_header("Location", entry["url"])
             else:
                 self.send_response(200)
+                self._mime("text/html; charset=utf-8")
             self.end_headers()
             entry["id"] = item_id
             entry["time_stamp"] = datetime.datetime.utcfromtimestamp(float(entry["time"])).strftime("%Y-%m-%d %H-%M-%S")
@@ -107,6 +111,7 @@ class Handler(BaseHTTPServer.BaseHTTPRequestHandler):
         if entry is None:
             return False
         self.send_response(200)
+        self._mime("image/" + entry["image_format"])
         self.end_headers()
         blob = entry["image_blob"]
         if min_dimensions != (-1, -1):
@@ -129,6 +134,7 @@ class Handler(BaseHTTPServer.BaseHTTPRequestHandler):
         if entry is None:
             return False
         self.send_response(200)
+        self._mime("image/svg+xml")
         self.end_headers()
         self.wfile.write(entry["svg_blob"])
 
@@ -138,6 +144,7 @@ class Handler(BaseHTTPServer.BaseHTTPRequestHandler):
         if entry is None:
             return False
         self.send_response(200)
+        self._mime("text/plain")
         self.end_headers()
         blob = entry["code_text"]
         self.wfile.write(blob)
@@ -148,6 +155,7 @@ class Handler(BaseHTTPServer.BaseHTTPRequestHandler):
         if entry is None:
             return False
         self.send_response(200)
+        self._mime("text/html; charset=utf-8")
         self.end_headers()
         entry["id"] = item_id
         entry["time_stamp"] = datetime.datetime.utcfromtimestamp(float(entry["time"])).strftime("%Y-%m-%d %H-%M-%S")
