@@ -184,16 +184,19 @@ def take_clipboard():
             upload_image(img)
             return
         try:
+            f = None
             f = open(text)
-            start = f.read(100)
-            start.index("<!DOCTYPE svg")
+            start = f.read(200)
+            print(start)
+            start.index("<svg")
         except:
             print("Failed to use svg file source")
+            if f is not None:
+                f.close()
         else:
             upload_svg(start + f.read())
             f.close()
             return
-        f.close()
 
         parsed_url = urlparse.urlparse(text)
         if parsed_url.scheme in ("http", "https"):
