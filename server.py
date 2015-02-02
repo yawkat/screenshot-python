@@ -149,6 +149,17 @@ class Handler(BaseHTTPServer.BaseHTTPRequestHandler):
         blob = entry["code_text"]
         self.wfile.write(blob)
 
+    def _dump_video(self, match):
+        item_id = match.group(1)
+        entry = get_db_entry(item_id)
+        if entry is None:
+            return False
+        self.send_response(200)
+        self._mime("video/webm ")
+        self.end_headers()
+        blob = entry["video_blob"]
+        self.wfile.write(blob)
+
     def _render_markdown(self, match):
         item_id = match.group(1)
         entry = get_db_entry(item_id)
@@ -173,6 +184,7 @@ special_urls = {
     re.compile(r"/([^/]*)\.(png|je?pg|gif|bmp)"): Handler._dump_image,
     re.compile(r"/([^/]*)\.svg"): Handler._dump_svg,
     re.compile(r"/([^/]*)\.txt"): Handler._dump_text,
+    re.compile(r"/([^/]*)\.webm"): Handler._dump_video,
     re.compile(r"/([^/]*)\.rmd"): Handler._render_markdown,
 }
 

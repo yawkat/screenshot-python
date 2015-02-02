@@ -14,6 +14,9 @@ import crypt
 import rencode
 import subprocess
 import urlparse
+import tempfile
+import time
+import signal
 
 import config
 
@@ -47,6 +50,13 @@ def upload_url(url):
         "url": url
     }
     upload(obj, "URL shortened: %s")
+
+def upload_video(data):
+    obj = {
+        "type": "video",
+        "video_blob": data
+    }
+    upload(obj, "Video uploaded: %s")
 
 def upload(obj, notification_format):
     data = crypt.encrypt_string_to_string(rencode.dumps(obj))
@@ -204,8 +214,58 @@ def take_clipboard():
         else:
             upload_code(text)
 
+def capture_or_end_screen():
+    pid_file = "screencast.pid"
+    if os.path.isfile(pid_file):
+        with open(pid_file) as f:
+            pid = int(f.read())
+        try:
+            os.kill(pid, signal.SIGINT)
+            return
+        except OSError:
+            pass
+    
+    record_screen(pid_file)
+
+def record_screen(pid_file):
+    pid = os.getpid()
+    with open(pid_file, "w") as f:
+        f.write(str(pid))
+
+    sc_avi = "screencast.avi"
+    proc = subprocess.Popen([
+        "avconv", "-y", "-f", "x11grab", "-r", "10", 
+        "-s", "1366x768", "-i", ":0.0+0,0", "-vcodec", "libx264", 
+        "-pre", "lossless_ultrafast",
+        sc_avi
+    ])
+
+    def stop(num, frm):
+        print("Received SIGINT, saving...")
+        proc.terminate()
+        signal.signal(signal.SIGINT, signal.SIG_DFL)
+        os.remove(pid_file)
+    signal.signal(signal.SIGINT, stop)
+
+    proc.wait()
+
+    sc_webm = "screencast.webm"
+    proc = subprocess.Popen([
+        "avconv", "-y", "-i", sc_avi, "-vcodec", "libvpx", 
+        "-b:v", "1M", "-qmin", "20", "-qmax", "42", sc_webm
+    ])
+    proc.wait()
+    os.remove(sc_avi)
+
+    with open(sc_webm) as f:
+        data = f.read()
+    os.remove(sc_webm)
+    upload_video(data)
+
 if __name__ == '__main__':
     if len(sys.argv) <= 1 or sys.argv[1] == "screen":
         take_screen()
     elif sys.argv[1] == "clipboard":
         take_clipboard()
+    elif sys.argv[1] == "screencast":
+        capture_or_end_screen()

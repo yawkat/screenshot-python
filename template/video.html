@@ -1,0 +1,18 @@
+{% extends "layout.html" %}
+
+{% block title %}Video{% endblock %}
+
+{% block head %}
+    <style type="text/css">
+        #video {
+            max-width: 100%;
+            display: block;
+            margin: 0 auto;
+        }
+    </style>
+    <meta content="noindex" property="robots">
+{% endblock %}
+
+{% block content %}
+    <video id="video" src="/{{ id }}.webm" controls autoplay loop></video>
+{% endblock %}
