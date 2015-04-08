@@ -85,7 +85,7 @@ class Handler(BaseHTTPServer.BaseHTTPRequestHandler):
             entry["id"] = item_id
             entry["time_stamp"] = datetime.datetime.utcfromtimestamp(float(entry["time"])).strftime("%Y-%m-%d %H-%M-%S")
             html = templates.render(entry["type"], entry)
-            self.wfile.write(html)
+            self.wfile.write(html.encode("utf-8"))
 
     def do_POST(self):
         data_str = crypt.decrypt_stream_to_string(self.rfile, limit=int(self.headers["Content-Length"])).strip()
